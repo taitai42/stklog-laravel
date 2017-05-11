@@ -1,11 +1,4 @@
-# :stklog-laravel
-
-[![Latest Version on Packagist][ico-version]][link-packagist]
-[![Software License][ico-license]](LICENSE.md)
-[![Build Status][ico-travis]][link-travis]
-[![Coverage Status][ico-scrutinizer]][link-scrutinizer]
-[![Quality Score][ico-code-quality]][link-code-quality]
-[![Total Downloads][ico-downloads]][link-downloads]
+# stklog-laravel
 
 This package is a stklog wrapper to send your log to stklog.
 please check stklog.io for more information on how to get your project_key
