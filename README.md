@@ -15,8 +15,10 @@ $ composer require taitai42/stklog-laravel
 add the service provider to your `config/app.php` file
 
 ```php
-
-\taitai42\Stklog\StklogServiceProvider::class,
+'providers' => [
+  ...,
+  \taitai42\Stklog\StklogServiceProvider::class,
+  ],
 
 ```
 publish the config file : 
