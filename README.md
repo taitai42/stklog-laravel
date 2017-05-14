@@ -16,8 +16,8 @@ add the service provider to your `config/app.php` file
 
 ```php
 'providers' => [
-  ...,
-  \taitai42\Stklog\StklogServiceProvider::class,
+    ...,
+    \taitai42\Stklog\StklogServiceProvider::class,
   ],
 
 ```
