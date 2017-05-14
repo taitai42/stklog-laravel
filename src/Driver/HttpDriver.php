@@ -162,7 +162,6 @@ class HttpDriver implements Driver
     public function send()
     {
         //TODO: handle post error\
-        dd(json_encode($this->stacks));
         $this->post(self::STACKS_ENDPOINT, json_encode($this->stacks));
         $this->post(self::LOGS_ENDPOINT, json_encode($this->logs));
         $this->logs = [];
