@@ -40,15 +40,26 @@ class StklogServiceProvider extends ServiceProvider
             $driver = config('stklog.transport', 'http');
             $class = $this->getDriverClass($driver);
 
-            $monolog = Log::getMonolog()->pushHandler(new $class(config('stklog.project_key')));
+            $monolog = Log::getMonolog()->pushHandler(new $class(config('stklog.project_key'),
+                config('stklog.level', Logger::INFO)));
 
+            /**
+             * now we replace the laravel log instance with our that contains the new handler
+             */
             $this->app->instance('log', $monolog);
+
             if (isset($this->app['log.setup'])) {
                 call_user_func($this->app['log.setup'], $monolog);
             }
         }
     }
 
+    /**
+     * build the driver classname with the selected transport
+     * @param $driver
+     *
+     * @return string
+     */
     private function getDriverClass($driver)
     {
         $drivername = ucfirst($driver);

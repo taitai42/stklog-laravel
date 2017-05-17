@@ -11,12 +11,25 @@ namespace taitai42\Stklog\Model;
 
 class StackRepository
 {
+    /**
+     * @var StackRepository
+     */
     protected static $instance = null;
 
+    /**
+     * @var []
+     */
     public $last_stack;
 
+    /**
+     * @var array of Stack
+     */
     public $stacks;
 
+    /**
+     * this class should be a singleton ...
+     * @return null|StackRepository
+     */
     public static function getInstance() {
         if (!self::$instance) {
             self::$instance = new StackRepository();
@@ -26,6 +39,9 @@ class StackRepository
     }
 
 
+    /**
+     * StackRepository constructor.
+     */
     protected function __construct()
     {
         $this->stacks = [];
@@ -33,7 +49,11 @@ class StackRepository
     }
 
     /**
-     * @param null $name
+     * create a new stack
+     *
+     * @param null  $name name of the stack
+     * @param null  $request_id request_id of the stack
+     * @param array $context context to pass on teh stack
      */
     public static function stack($name = null, $request_id = null, array $context = [])
     {
@@ -46,6 +66,7 @@ class StackRepository
     }
 
     /**
+     * close the last stack
      * @param null $name
      */
     public static function endstack($name = null, $request_id = null)
@@ -61,6 +82,7 @@ class StackRepository
     }
 
     /**
+     * Return last id of the last stack, or create one if no one exists
      * @return mixed|null
      */
     public function getLastId()
