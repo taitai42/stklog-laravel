@@ -2,7 +2,9 @@
 
 namespace taitai42\Stklog\Middleware;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use taitai42\Stklog\Model\StackRepository;
 
 /**
  * Created by PhpStorm.
@@ -22,9 +24,8 @@ class StklogMiddleware
      */
     public function handle($request, \Closure $next)
     {
-        Log::stack('main', null, $request->headers->all());
-
-        Log::info('Request', $request->toArray());
+        StackRepository::stack('megamegatest', null, $request->headers->all());
+        Log::info('Request', $request->all());
 
         return $next($request);
     }

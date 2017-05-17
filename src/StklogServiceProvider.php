@@ -2,8 +2,12 @@
 
 namespace taitai42\Stklog;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Monolog\Logger;
 use taitai42\Stklog\Contracts\Driver;
+use taitai42\Stklog\Middleware\StklogMiddleware;
+use taitai42\Stklog\Model\StackRepository;
 
 class StklogServiceProvider extends ServiceProvider
 {
@@ -17,6 +21,7 @@ class StklogServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/config/stklog.php' => config_path('stklog.php'),
         ]);
+
     }
 
     /**
@@ -26,35 +31,31 @@ class StklogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom(
-            __DIR__ . '/config/stklog.php', 'stklog'
-        );
+        if ($this->app->environment() != 'testing') {
 
-        $driver = config('stklog.transport', 'http');
+            $this->mergeConfigFrom(
+                __DIR__ . '/config/stklog.php', 'stklog'
+            );
 
-        $class = $this->getDriverClass($driver);
+            $driver = config('stklog.transport', 'http');
+            $class = $this->getDriverClass($driver);
 
-        $this->app->singleton(Driver::class, function ($app) use ($class) {
-            return new $class(config("stklog"), LOG_DEBUG);
-        });
+            $monolog = Log::getMonolog()->pushHandler(new $class(config('stklog.project_key')));
 
-        $logger = new Stklog(resolve(Driver::class));
-
-        $this->app->instance('log', $logger);
-
-        if (isset($this->app['log.setup'])) {
-            call_user_func($this->app['log.setup'], $logger);
+            $this->app->instance('log', $monolog);
+            if (isset($this->app['log.setup'])) {
+                call_user_func($this->app['log.setup'], $monolog);
+            }
         }
-
     }
 
     private function getDriverClass($driver)
     {
         $drivername = ucfirst($driver);
 
-        $classname = __NAMESPACE__ . '\\Driver\\' . $drivername . 'Driver';
+        $classname = __NAMESPACE__ . '\\Handler\\Stklog' . $drivername . 'Handler';
         if (!class_exists($classname)) {
-            $classname = __NAMESPACE__ . '\\Driver\\HttpDriver';
+            $classname = __NAMESPACE__ . '\\Handler\\StklogHttpHandler';
         }
 
         return $classname;

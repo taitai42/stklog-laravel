@@ -57,12 +57,11 @@ class Stack
         $error = new \Exception();
 
         $trace = $error->getTrace();
-        $trace = $trace[3]; //we always gonna have this file, stklog, and the log facade first.
+        $trace = $trace[4]; //we always gonna have this file, stklog, and the log facade first.
 
         $this->extra = (object)$extra;
         $this->file = $trace['file'];
         $this->line = $trace['line'];
-        $this->timestamp = (new \DateTime('now', new \DateTimeZone(config('app.timezone'))))->format(config('stklog.timestampformat'));
+        $this->timestamp = (new \DateTime('now'))->format(\DateTime::ATOM);
     }
-
 }

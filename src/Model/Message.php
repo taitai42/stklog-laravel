@@ -44,21 +44,22 @@ class Message
      */
     public $level;
 
-
-    public function __construct($request_id, $message, $level, $extra = [])
+    public function __construct($request_id, array $record)
     {
+
         $error = new \Exception();
 
         $this->request_id = $request_id;
         $trace = $error->getTrace();
-        $trace = $trace[3]; //we always gonna have this file, stklog, and the log facade first.
+
+        $trace = $trace[4]; //we always gonna have this file, stklog, and the log facade first.
 
         $this->file = $trace['file'];
         $this->line = $trace['line'];
-        $this->timestamp = (new \DateTime('now', new \DateTimeZone(config('app.timezone'))))->format(config('stklog.timestampformat'));
-        $this->message = $message;
-        $this->extra = (object)$extra;
-        $this->level = $level;
+        $this->timestamp = $record['datetime']->format(\DateTime::ATOM);
+        $this->message = $record['message'];
+        $this->extra = (object) array_merge($record['context'], $record['extra']);
+        $this->level = $record['level'];
     }
 
 }
