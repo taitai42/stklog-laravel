@@ -24,7 +24,7 @@ class StklogMiddleware
      */
     public function handle($request, \Closure $next)
     {
-        StackRepository::stack('megamegatest', null, $request->headers->all());
+        StackRepository::stack('main', null, $request->headers->all());
         Log::info('Request', $request->all());
 
         return $next($request);
