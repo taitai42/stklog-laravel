@@ -52,7 +52,7 @@ class Message
         $this->request_id = $request_id;
         $trace = $error->getTrace();
 
-        $trace = $trace[4]; //we always gonna have this file, stklog, and the log facade first.
+        $trace = $trace[3]; //we always gonna have this file, stklog, and the log facade first.
 
         $this->file = $trace['file'];
         $this->line = $trace['line'];

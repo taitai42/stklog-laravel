@@ -92,8 +92,8 @@ class StklogHttpHandler extends AbstractProcessingHandler
     public function send()
     {
         //TODO: handle post error\
-        Log::debug($this->post(self::STACKS_ENDPOINT, json_encode($this->stacks->getStacks())));
-        Log::debug($this->post(self::LOGS_ENDPOINT, json_encode($this->logs)));
+        $this->post(self::STACKS_ENDPOINT, json_encode($this->stacks->getStacks()));
+        $this->post(self::LOGS_ENDPOINT, json_encode($this->logs));
         $this->logs = [];
     }
 
@@ -105,8 +105,6 @@ class StklogHttpHandler extends AbstractProcessingHandler
      */
     public function post($endpoint, $data)
     {
-        Log::debug($data);
-        Log::debug( $this->token);
         $ch = curl_init(self::API_URL . $endpoint);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

@@ -57,7 +57,7 @@ class Stack
         $error = new \Exception();
 
         $trace = $error->getTrace();
-        $trace = $trace[4]; //we always gonna have this file, stklog, and the log facade first.
+        $trace = $trace[3]; //we always gonna have this file, stklog, and the log facade first.
 
         $this->extra = (object)$extra;
         $this->file = $trace['file'];
