@@ -18,11 +18,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | Represent the transport method to send the logs to stklog
-    | Currently, stklog only support http, which means we stack every log until
+    | Currently, stklog  support http and tcp.
+    | http works by stacking every log until
     | the end of the request, in order to only make one big request.
     |
+    | tcp sends directly your stacks and logs to stklog
+    |
     */
-    'transport' => 'http',
+    'transport' => 'tcp',
 
     /*
     |--------------------------------------------------------------------------
