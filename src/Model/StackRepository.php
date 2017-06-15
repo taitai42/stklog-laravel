@@ -9,6 +9,8 @@
 namespace taitai42\Stklog\Model;
 
 
+use taitai42\Stklog\Handler\StklogTcpHandler;
+
 class StackRepository
 {
     /**
@@ -30,9 +32,9 @@ class StackRepository
      * this class should be a singleton ...
      * @return null|StackRepository
      */
-    public static function getInstance() {
+    public static function getInstance($driver = null) {
         if (!self::$instance) {
-            self::$instance = new StackRepository();
+            self::$instance = new StackRepository($driver);
         }
 
         return self::$instance;
@@ -42,10 +44,11 @@ class StackRepository
     /**
      * StackRepository constructor.
      */
-    protected function __construct()
+    protected function __construct($driver = null)
     {
         $this->stacks = [];
         $this->last_stack = null;
+        $this->driver = $driver;
     }
 
     /**
@@ -63,8 +66,14 @@ class StackRepository
         $stack->parent_request_id = $rep->end($rep->last_stack);
         $rep->last_stack[] = $stack->request_id;
         $rep->stacks[] = $stack;
+        if ($rep->driver instanceof StklogTcpHandler) {
+            $rep->sendStack($stack);
+        }
     }
 
+    public function sendStack($stack) {
+        $this->driver->send($stack);
+    }
     /**
      * close the last stack
      * @param null $name
