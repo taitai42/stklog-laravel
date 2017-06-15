@@ -63,6 +63,6 @@ class Stack
         $this->file = $trace['file'];
         $this->line = $trace['line'];
         $this->timestamp = (new \DateTime('now'))->format(\DateTime::ATOM);
-        //$this->hostname = $_SERVER['SERVER_NAME'];
+        $this->hostname = $_SERVER['SERVER_NAME'];
     }
 }
