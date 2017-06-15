@@ -11,8 +11,10 @@ namespace taitai42\Stklog\Handler;
 
 use Illuminate\Support\Facades\Log;
 use Ixudra\Curl\Facades\Curl;
+use MongoDB\Driver\Manager;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Handler\SocketHandler;
 use Monolog\Logger;
 use taitai42\Stklog\Contracts\Driver;
 use taitai42\Stklog\Model\Message;
@@ -24,22 +26,22 @@ use taitai42\Stklog\Model\StackRepository;
  *
  * @package taitai42\Stklog\Driver
  */
-class StklogHttpHandler extends AbstractProcessingHandler
+class StklogTcpHandler extends SocketHandler
 {
     /**
      * Api url
      */
-    const API_URL = "https://api.stklog.io";
+    const SOCKET_URL = "tcp://api.stklog.io:4242";
 
     /**
      * Stacks endpoint
      */
-    const STACKS_ENDPOINT = "/stacks";
+    const STACK_TYPE = "stack";
 
     /**
      * Logs endpoint
      */
-    const LOGS_ENDPOINT = "/logs";
+    const LOG_TYPE = "log";
 
 
     /**
@@ -47,10 +49,6 @@ class StklogHttpHandler extends AbstractProcessingHandler
      */
     protected $stacks;
 
-    /**
-     * @var Message[]
-     */
-    protected $logs;
 
     /**
      * @var array
@@ -76,7 +74,7 @@ class StklogHttpHandler extends AbstractProcessingHandler
      */
     public function __construct($project_key, $level = Logger::INFO, $bubble = true)
     {
-        parent::__construct($level, $bubble);
+        parent::__construct(self::SOCKET_URL, $level, $bubble);
 
         $this->token = $project_key;
 
@@ -89,39 +87,23 @@ class StklogHttpHandler extends AbstractProcessingHandler
      * When we send the data to the api
      * We should always send the stack first, then the logs.
      */
-    public function send()
+    public function send($data)
     {
-        //TODO: handle post error\
-        $this->post(self::STACKS_ENDPOINT, json_encode($this->stacks->getStacks()));
-        $this->post(self::LOGS_ENDPOINT, json_encode($this->logs));
-        $this->logs = [];
+        $type = self::STACK_TYPE;
+        if ($data instanceof Message) {
+            $type = self::LOG_TYPE;
+        }
+
+        $replace = [
+            '{project_key}' => $this->token,
+            '{type}' => $type,
+            '{message}' => str_replace('\n', '', json_encode($data)),
+        ];
+
+        $message = implode(chr(9), $replace) . "\n";
+        parent::write(['formatted' => $message]);
     }
 
-    /**
-     * @param $endpoint
-     * @param $data
-     *
-     * @return array
-     */
-    public function post($endpoint, $data)
-    {
-        $ch = curl_init(self::API_URL . $endpoint);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($data),
-                'X-Stklog-Project-Key: ' . $this->token,
-            ]
-        );
-
-        $result = curl_exec($ch);
-        $errno = curl_errno($ch);
-        curl_close($ch);
-
-        return [$result, $errno];
-    }
 
 
     /**
@@ -134,7 +116,7 @@ class StklogHttpHandler extends AbstractProcessingHandler
     protected function write(array $record)
     {
         $message = new Message($this->stacks->getLastId(), $record);
-        $this->logs[] = $message;
+        $this->send($message);
     }
 
     /**
