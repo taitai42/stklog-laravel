@@ -25,8 +25,8 @@ class StklogMiddleware
     public function handle($request, \Closure $next)
     {
         StackRepository::stack('main', null, $request->headers->all());
-        Log::info('Request', $request->all());
-
+        Log::info('Request', ['route' => $request->url(),  'content' => $request->getContent()]);
+  
         return $next($request);
     }
 
